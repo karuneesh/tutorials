@@ -1,7 +1,11 @@
 const express = require('express')
+const app = express()
 const bodyParser = require('body-parser')
 
-const app = express()
+const AWS = require('aws-sdk');
+const credentials = new AWS.SharedIniFileCredentials({profile: 'sns_profile'});
+const sns = new AWS.SNS({credentials: credentials, region: 'us-east-1'});
+
 const port = 8080
 
 app.use(bodyParser.json())
@@ -28,3 +32,15 @@ app.post('/fibonacci', (req, res) => {
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 })
+
+app.post('/email-notifications', function (req, res) {
+	console.log(req.headers);
+
+    // Now we can view the body contents
+	console.log(req.body);
+    var json = JSON.parse(req.body);
+    var msg = JSON.parse(json.Message); /* Should have been done by the previous line but SNS escaped this property */
+    console.log(msg);
+
+    res.status(200).json();
+}); 
